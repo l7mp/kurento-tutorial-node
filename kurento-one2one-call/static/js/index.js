@@ -19,7 +19,8 @@ var ws = new WebSocket('wss://' + location.host + '/one2one');
 var videoInput;
 var videoOutput;
 var webRtcPeer;
-
+var iceConfiguration;
+    
 var registerName = null;
 const NOT_REGISTERED = 0;
 const REGISTERING = 1;
@@ -129,7 +130,8 @@ ws.onmessage = function(message) {
 
 function resgisterResponse(message) {
 	if (message.response == 'accepted') {
-		setRegisterState(REGISTERED);
+	        setRegisterState(REGISTERED);
+                iceConfiguration = message.iceConfiguration;
 	} else {
 		setRegisterState(NOT_REGISTERED);
 		var errorMessage = message.message ? message.message
@@ -181,6 +183,8 @@ function incomingCall(message) {
 			onicecandidate : onIceCandidate
 		}
 
+                options.configuration = iceConfiguration;
+                
 		webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
 				function(error) {
 					if (error) {
@@ -247,6 +251,8 @@ function call() {
 		remoteVideo : videoOutput,
 		onicecandidate : onIceCandidate
 	}
+
+        options.configuration = iceConfiguration;
 
 	webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function(
 			error) {
@@ -326,3 +332,8 @@ $(document).delegate('*[data-toggle="lightbox"]', 'click', function(event) {
 	event.preventDefault();
 	$(this).ekkoLightbox();
 });
+
+// Local Variables:
+// js-indent-level: 8
+// indent-tabs-mode: nil
+// End:
