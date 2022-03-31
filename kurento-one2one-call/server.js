@@ -24,13 +24,13 @@ var kurento = require('kurento-client');
 var fs    = require('fs');
 var https = require('https');
 if(!('STUNNER_PUBLIC_ADDR' in process.env) || !('STUNNER_USERNAME' in process.env) || !('STUNNER_USERNAME' in process.env)){
-    console.error('Environment variables STUNNER_PUBLIC_ADDR / STUNNER_PORT / STNNER_USERNAME / STUNNER_PASSWORD must be set');
+    console.error('Environment variables STUNNER_PUBLIC_ADDR / STUNNER_PUBLIC_PORT / STNNER_USERNAME / STUNNER_PASSWORD must be set');
     process.exit(1);
 }
 var iceConfiguration = {
   'iceServers': [
     {
-      'url': 'turn:' + process.env.STUNNER_PUBLIC_ADDR + ':' + process.env.STUNNER_PORT,
+      'url': 'turn:' + process.env.STUNNER_PUBLIC_ADDR + ':' + process.env.STUNNER_PUBLIC_PORT,
       'username': process.env.STUNNER_USERNAME,
       'credential': process.env.STUNNER_PASSWORD,
     }
