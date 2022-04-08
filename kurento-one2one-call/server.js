@@ -23,6 +23,7 @@ var url = require('url');
 var kurento = require('kurento-client');
 var fs    = require('fs');
 var https = require('https');
+
 if(!('STUNNER_PUBLIC_ADDR' in process.env) || !('STUNNER_USERNAME' in process.env) || !('STUNNER_USERNAME' in process.env)){
     console.error('Environment variables STUNNER_PUBLIC_ADDR / STUNNER_PUBLIC_PORT / STNNER_USERNAME / STUNNER_PASSWORD must be set');
     process.exit(1);
@@ -34,7 +35,8 @@ var iceConfiguration = {
       'username': process.env.STUNNER_USERNAME,
       'credential': process.env.STUNNER_PASSWORD,
     }
-  ]
+  ],
+  iceTransportPolicy: 'relay',
 };
 
 var argv = minimist(process.argv.slice(2), {
