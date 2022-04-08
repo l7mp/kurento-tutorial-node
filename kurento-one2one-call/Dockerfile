@@ -1,4 +1,5 @@
-# sudo docker build -t kurento-webrtc-server .
+# docker build -t l7mp/kurento-one2one-call-server .
+# docker push l7mp/kurento-one2one-call-server
 
 FROM node:14-alpine3.12
 
