@@ -26,6 +26,31 @@ var kurento = require('kurento-client');
 var fs    = require('fs');
 var https = require('https');
 
+/* Stunner demo patch starts */
+if(!('STUNNER_PUBLIC_ADDR' in process.env) || !('STUNNER_USERNAME' in process.env) || !('STUNNER_USERNAME' in process.env)){
+    console.error('Environment variables STUNNER_PUBLIC_ADDR / STUNNER_PUBLIC_PORT / STNNER_USERNAME / STUNNER_PASSWORD must be set');
+    process.exit(1);
+}
+
+var client_file = 'static/js/index.js';
+
+file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
+    if (err) {
+        return console.log(err);
+    }
+    data = data.replace("XXX", process.env.STUNNER_PUBLIC_ADDR);
+    data = data.replace("YYY", process.env.STUNNER_PUBLIC_PORT);
+    data = data.replace("ZZZ", process.env.STUNNER_USERNAME);
+    data = data.replace("WWW", process.env.STUNNER_PASSWORD);
+
+    fs.writeFile(client_file, data, 'utf-8', function(err) {
+        if (err) {
+            return console.log(err);
+        }
+    });
+});
+/* Stunner demo patch ends */
+
 var argv = minimist(process.argv.slice(2), {
     default: {
         as_uri: 'https://localhost:8443/',
