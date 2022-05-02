@@ -21,6 +21,15 @@ var videoOutput;
 var webRtcPeer;
 var state = null;
 
+/* Stunner demo patch starts.
+   These fields are replaced with valid values by the server */
+var STUNNER_PUBLIC_ADDR = "XXX";
+var STUNNER_PUBLIC_PORT = "YYY";
+var STUNNER_USERNAME = "ZZZ";
+var STUNNER_PASSWORD = "WWW";
+/* Stunner demo patch ends */
+
+
 const I_CAN_START = 0;
 const I_CAN_STOP = 1;
 const I_AM_STARTING = 2;
@@ -76,6 +85,22 @@ function start() {
       remoteVideo: videoOutput,
       onicecandidate : onIceCandidate
     }
+
+    /* Stunner demo patch starts. */
+    var iceConfiguration = {
+            'iceServers': [
+                {
+                    'url': 'turn:' + STUNNER_PUBLIC_ADDR + ':' + STUNNER_PUBLIC_PORT,
+                    'username': STUNNER_USERNAME,
+                    'credential': STUNNER_PASSWORD,
+                }
+            ],
+            iceTransportPolicy: 'relay',
+            sdpMid: '0',
+            sdpMLineIndex: 0,
+    };
+    options.configuration = iceConfiguration;
+    /* Stunner demo patch ends. */
 
     webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options, function(error) {
         if(error) return onError(error);
