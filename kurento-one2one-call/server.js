@@ -299,7 +299,8 @@ function stop(sessionId) {
     pipeline.release();
     var stopperUser = userRegistry.getById(sessionId);
     var stoppedUser = userRegistry.getByName(stopperUser.peer);
-    stopperUser.peer = null;
+    if(stopperUser)
+        stopperUser.peer = null;
 
     if (stoppedUser) {
         stoppedUser.peer = null;
