@@ -23,12 +23,8 @@ var state = null;
 
 /* Stunner demo patch starts.
    These fields are replaced with valid values by the server */
-var STUNNER_PUBLIC_ADDR = "XXX";
-var STUNNER_PUBLIC_PORT = "YYY";
-var STUNNER_USERNAME = "ZZZ";
-var STUNNER_PASSWORD = "WWW";
+var iceConfiguration = "XXXXXX"
 /* Stunner demo patch ends */
-
 
 const I_CAN_START = 0;
 const I_CAN_STOP = 1;
@@ -87,18 +83,6 @@ function start() {
     }
 
     /* Stunner demo patch starts. */
-    var iceConfiguration = {
-            'iceServers': [
-                {
-                    'url': 'turn:' + STUNNER_PUBLIC_ADDR + ':' + STUNNER_PUBLIC_PORT,
-                    'username': STUNNER_USERNAME,
-                    'credential': STUNNER_PASSWORD,
-                }
-            ],
-            iceTransportPolicy: 'relay',
-            sdpMid: '0',
-            sdpMLineIndex: 0,
-    };
     options.configuration = iceConfiguration;
     /* Stunner demo patch ends. */
 

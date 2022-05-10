@@ -17,7 +17,7 @@
 
 var path = require('path');
 var url = require('url');
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 var express = require('express');
 var session = require('express-session')
 var minimist = require('minimist');
@@ -27,22 +27,16 @@ var fs    = require('fs');
 var https = require('https');
 
 /* Stunner demo patch starts */
-if(!('STUNNER_PUBLIC_ADDR' in process.env) || !('STUNNER_USERNAME' in process.env) || !('STUNNER_USERNAME' in process.env)){
-    console.error('Environment variables STUNNER_PUBLIC_ADDR / STUNNER_PUBLIC_PORT / STNNER_USERNAME / STUNNER_PASSWORD must be set');
-    process.exit(1);
-}
+const StunnerAuth = require('@l7mp/stunner-auth-lib');
+var iceConfiguration = StunnerAuth.getIceConfig();
 
+// patch index.js to statically serve the correct TURN configuration to the clients
 var client_file = 'static/js/index.js';
-
 file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
     if (err) {
         return console.log(err);
     }
-    data = data.replace("XXX", process.env.STUNNER_PUBLIC_ADDR);
-    data = data.replace("YYY", process.env.STUNNER_PUBLIC_PORT);
-    data = data.replace("ZZZ", process.env.STUNNER_USERNAME);
-    data = data.replace("WWW", process.env.STUNNER_PASSWORD);
-
+    data = data.replace("XXXXXX", iceConfiguration);
     fs.writeFile(client_file, data, 'utf-8', function(err) {
         if (err) {
             return console.log(err);
@@ -93,7 +87,7 @@ var kurentoClient = null;
 var asUrl = url.parse(argv.as_uri);
 var port = asUrl.port;
 var server = https.createServer(options, app).listen(port, function() {
-    console.log('Kurento Tutorial started');
+    console.log('STUNnerTutorial started: Kurento magic mirror');
     console.log('Open ' + url.format(asUrl) + ' with a WebRTC capable browser');
 });
 
@@ -266,8 +260,8 @@ function createMediaElements(pipeline, ws, callback) {
                 return callback(error);
             }
 
-            // const appServerUrl = url.format(asUrl);
-            const appServerUrl = "http://files.openvidu.io";
+            const appServerUrl = url.format(asUrl);
+            // const appServerUrl = "http://files.openvidu.io";
             faceOverlayFilter.setOverlayedImage(appServerUrl + '/img/mario-wings.png',
                     -0.35, -1.2, 1.6, 1.6, function(error) {
                 if (error) {
