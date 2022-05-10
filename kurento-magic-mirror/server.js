@@ -24,6 +24,7 @@ var minimist = require('minimist');
 var ws = require('ws');
 var kurento = require('kurento-client');
 var fs    = require('fs');
+var http = require('http');
 var https = require('https');
 
 /* Stunner demo patch starts */
@@ -36,7 +37,7 @@ file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
     if (err) {
         return console.log(err);
     }
-    data = data.replace("XXXXXX", iceConfiguration);
+    data = data.replace("XXXXXX", JSON.stringify(iceConfiguration));
     fs.writeFile(client_file, data, 'utf-8', function(err) {
         if (err) {
             return console.log(err);
@@ -48,7 +49,8 @@ file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
 var argv = minimist(process.argv.slice(2), {
     default: {
         as_uri: 'https://localhost:8443/',
-        ws_uri: 'ws://localhost:8888/kurento'
+        ws_uri: 'ws://localhost:8888/kurento',
+        overlay_uri: 'http://overlay-image.default.svc.cluster.local:80/img/mario-wings.png'
     }
 });
 
@@ -95,6 +97,21 @@ var wss = new ws.Server({
     server : server,
     path : '/magicmirror'
 });
+
+// serve the overlay image for the Kurento media server
+http.createServer(function (req, res) {
+    let file = __dirname + "/static/" + req.url;
+    console.log("Serving overlay image:", file);
+    fs.readFile(file, function (err,data) {
+        if (err) {
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+            return;
+        }
+        res.writeHead(200);
+        res.end(data);
+    });
+}).listen(80);
 
 /*
  * Management of WebSocket messages
@@ -260,9 +277,9 @@ function createMediaElements(pipeline, ws, callback) {
                 return callback(error);
             }
 
-            const appServerUrl = url.format(asUrl);
-            // const appServerUrl = "http://files.openvidu.io";
-            faceOverlayFilter.setOverlayedImage(appServerUrl + '/img/mario-wings.png',
+            // const appServerUrl = url.format(asUrl);
+            console.log("Using overlay image URI:", argv.overlay_uri);
+            faceOverlayFilter.setOverlayedImage(argv.overlay_uri,
                     -0.35, -1.2, 1.6, 1.6, function(error) {
                 if (error) {
                     return callback(error);
