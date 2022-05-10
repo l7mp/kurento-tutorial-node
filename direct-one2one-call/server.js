@@ -112,7 +112,7 @@ UserRegistry.prototype.removeById = function(id) {
 var asUrl = url.parse(argv.as_uri);
 var port = asUrl.port;
 var server = https.createServer(options, app).listen(port, function() {
-  console.log('STUNnerTutorial started');
+    console.log('STUNnerTutorial started: Kurento direct call');
   console.log('Open ' + url.format(asUrl) + ' with a WebRTC capable browser');
 });
 
