@@ -178,7 +178,7 @@ wss.on('connection', function(ws) {
 
 function stop(sessionId) {
   var stopperUser = userRegistry.getById(sessionId);
-  if(stopperUser.peer){
+  if(stopperUser && stopperUser.peer){
     var stoppedUser = userRegistry.getByName(stopperUser.peer);
     stopperUser.peer = null;
 
@@ -187,8 +187,8 @@ function stop(sessionId) {
       var message = {
         id: 'stopCommunication',
         message: 'remote user hanged out'
-      }
-      stoppedUser.sendMessage(message)
+      };
+      stoppedUser.sendMessage(message);
     }
     clearCandidatesQueue(sessionId);
   }
