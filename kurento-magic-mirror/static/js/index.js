@@ -23,7 +23,7 @@ var state = null;
 
 /* Stunner demo patch starts.
    These fields are replaced with valid values by the server */
-var iceConfiguration = "XXXXXX"
+var iceConfiguration = XXXXXX;
 /* Stunner demo patch ends */
 
 const I_CAN_START = 0;
