@@ -430,6 +430,7 @@ function register(id, name, ws, callback) {
     userRegistry.register(new UserSession(id, name, ws));
     try {
         let iceConfiguration = auth.getIceConfig();
+        console.log("Generated ICE config:", JSON.stringify(iceConfiguration));
         ws.send(JSON.stringify({id: 'registerResponse', response: 'accepted', iceConfiguration: iceConfiguration}));
     } catch(exception) {
         onError(exception);
