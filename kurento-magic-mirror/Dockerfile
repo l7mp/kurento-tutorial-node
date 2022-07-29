@@ -1,7 +1,7 @@
 # docker build -t l7mp/kurento-magic-mirror .
 # docker push l7mp/kurento-magic-mirror
 
-FROM node:14-alpine3.12
+FROM node:16-alpine3.15
 
 RUN apk update && \
     apk upgrade && \

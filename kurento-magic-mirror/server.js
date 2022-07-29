@@ -28,22 +28,32 @@ var http = require('http');
 var https = require('https');
 
 /* Stunner demo patch starts */
-const StunnerAuth = require('@l7mp/stunner-auth-lib');
-var iceConfiguration = StunnerAuth.getIceConfig();
+const auth = require('@l7mp/stunner-auth-lib');
 
 // patch index.js to statically serve the correct TURN configuration to the clients
 var client_file = 'static/js/index.js';
-file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
-    if (err) {
-        return console.log(err);
-    }
-    data = data.replace("XXXXXX", JSON.stringify(iceConfiguration));
-    fs.writeFile(client_file, data, 'utf-8', function(err) {
+
+// periodic update of index.js
+function checkIceConfigurationWithDelay(){
+    let iceConfiguration = auth.getIceConfig();
+
+    file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
         if (err) {
             return console.log(err);
         }
+        if (iceConfiguration){
+            data = data.replace("XXXXXX", JSON.stringify(iceConfiguration));
+            fs.writeFile(client_file, data, 'utf-8', function(err) {
+                if (err) {
+                    return console.log(err);
+                }
+            });
+            console.log("Stunner public IP found: ", JSON.stringify(iceConfiguration));
+        }
     });
-});
+}
+
+setInterval(checkIceConfigurationWithDelay, 5000);
 /* Stunner demo patch ends */
 
 var argv = minimist(process.argv.slice(2), {
