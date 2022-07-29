@@ -24,10 +24,7 @@ var kurento = require('kurento-client');
 var fs    = require('fs');
 var https = require('https');
 
-const StunnerAuth = require('@l7mp/stunner-auth-lib');
-
-var iceConfiguration = StunnerAuth.getIceConfig();
-
+const auth = require('@l7mp/stunner-auth-lib');
 
 var argv = minimist(process.argv.slice(2), {
   default: {
@@ -304,6 +301,8 @@ function register(id, name, ws, callback) {
 
   userRegistry.register(new UserSession(id, name, ws));
   try {
+    let iceConfiguration = auth.getIceConfig();
+    console.log("Generated ICE config:", JSON.stringify(iceConfiguration));
     ws.send(JSON.stringify({id: 'registerResponse', response: 'accepted', iceConfiguration: iceConfiguration}));
   } catch(exception) {
     onError(exception);
