@@ -194,10 +194,6 @@ wss.on('connection', function(ws, req) {
 
 // Recover kurentoClient for the first time.
 function getKurentoClient(callback) {
-    if (kurentoClient !== null) {
-        return callback(null, kurentoClient);
-    }
-
     kurento(argv.ws_uri, function(error, _kurentoClient) {
         if (error) {
             console.log("Could not find media server at address " + argv.ws_uri);
