@@ -30,13 +30,20 @@ var https = require('https');
 /* Stunner demo patch starts */
 const auth = require('@l7mp/stunner-auth-lib');
 
-// patch index.js to statically serve the correct TURN configuration to the clients
+// Generate 'index.js' from 'index.js.template' with the correct STUNner configuration
 var client_file = 'static/js/index.js';
+var template_file = 'static/js/index.js.template'
 
-// periodic update of index.js
+// Periodic update of index.js
 function checkIceConfigurationWithDelay(){
     let iceConfiguration = auth.getIceConfig();
 
+    // copy template to client file
+    fs.copyFile(template_file, client_file, (err) => {
+        if (err) throw err;
+    });
+
+    // Replace STUNner config
     file_desc = fs.readFile(client_file, 'utf-8', function(err,data) {
         if (err) {
             return console.log(err);
