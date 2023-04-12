@@ -121,7 +121,7 @@ ws.onmessage = function(message) {
 		stop(true);
 		break;
 	case 'iceCandidate':
-		webRtcPeer.addIceCandidate(parsedMessage.candidate)
+		webRtcPeer.addIceCandidate(parsedMessage.candidate);
 		break;
 	default:
 		console.error('Unrecognized message', parsedMessage);
