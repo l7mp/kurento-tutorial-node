@@ -6,7 +6,6 @@
     "postinstall": "cd static && bower install"
   },
   "dependencies": {
-    "@l7mp/stunner-auth-lib": "^0.9.6",
     "express": "^4.17.0",
     "minimist": "^1.1.1",
     "ws": "^7.1.0",

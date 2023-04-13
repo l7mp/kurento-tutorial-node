@@ -1,7 +1,7 @@
 # docker build -t l7mp/direct-one2one-call-server .
 # docker push l7mp/direct-one2one-call-server
 
-FROM node:16-alpine3.15
+FROM node:16-alpine3.16
 
 RUN apk update && \
     apk upgrade && \

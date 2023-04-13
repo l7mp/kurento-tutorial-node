@@ -241,6 +241,7 @@ function queryIceConfig(name) {
 
     return options;
 }
+
 /*
  * Server startup
  */
