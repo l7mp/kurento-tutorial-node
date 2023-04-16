@@ -28,16 +28,53 @@ var http = require('http');
 var https = require('https');
 
 /* Stunner demo patch starts */
-const auth = require('@l7mp/stunner-auth-lib');
+var iceConfiguration;
+var stnr_auth_addr = "stunner-auth.stunner-system.svc.cluster.local";
+var stnr_auth_port = "8088";
+if ("STUNNER_AUTH_ADDR" in process.env) {
+  stnr_auth_url = process.env.STUNNER_AUTH_ADDR;
+}
+if ("STUNNER_AUTH_PORT" in process.env) {
+  stnr_auth_port = process.env.STUNNER_AUTH_PORT;
+}
+
 
 // Generate 'index.js' from 'index.js.template' with the correct STUNner configuration
 var client_file = 'static/js/index.js';
 var template_file = 'static/js/index.js.template'
 
 // Periodic update of index.js
-function checkIceConfigurationWithDelay(){
-    let iceConfiguration = auth.getIceConfig();
+function queryIceConfig(name) {
+    let query = {
+        pathname: '/ice',
+        query: {
+            service: "turn",
+            username: name,
+            iceTransportPolicy: "relay",
+        },
+    };
+    // filter on namespace, gateway and listener
+    if("STUNNER_NAMESPACE" in process.env) {
+        query.query.namespace = process.env.STUNNER_NAMESPACE;
+    }
+    if("STUNNER_GATEWAY" in process.env) {
+        query.query.gateway = process.env.STUNNER_GATEWAY;
+    }
+    if("STUNNER_LISTENER" in process.env) {
+        query.query.listener = process.env.STUNNER_LISTENER;
+    }
 
+    let options = {
+        host: stnr_auth_addr,
+        port: stnr_auth_port,
+        method: 'GET',
+        path: url.format(query),
+    };
+
+    return options;
+}
+
+function updateIceConfigurationIndexJS(){
     // copy template to client file
     fs.copyFile(template_file, client_file, (err) => {
         if (err) throw err;
@@ -58,6 +95,48 @@ function checkIceConfigurationWithDelay(){
             console.log("Stunner public IP found: ", JSON.stringify(iceConfiguration));
         }
     });
+}
+
+// At the time of client connection, static/js/index.js must hold the correct ice config.
+function checkIceConfigurationWithDelay(){
+    function onError(error) {
+        console.log("error: " + error);
+    }
+
+    try {
+        let options = queryIceConfig("user-1");
+        var iceConfData = '';
+        var request_data = http.request(options, function (res) {
+            var response = '';
+            res.on('data', function (chunk) {
+                response += chunk;
+                console.log('on data response'+ response);
+            });
+            res.on('end', function () {
+                iceConfData += response;
+                iceConfiguration = JSON.parse(iceConfData);
+                if (iceConfiguration){
+                    console.log("Found ICE config from STUNner auth service.");
+                    updateIceConfigurationIndexJS();
+                }
+            });
+            res.on('error', function (err) {
+                console.log(err);
+                return onError("HTTP response error when querying the STUNner auth service with params " +
+                               JSON.stringify(options) + ": " + err);
+            });
+        });
+        request_data.on('error', function (err) {
+            console.log(err);
+            return onError("HTTP error when querying the STUNner auth service with params " +
+                           JSON.stringify(options) + ": " + err);
+        });
+        request_data.end();
+    } catch(exception) {
+        onError(exception);
+        return onError("Exception when querying the STUNner auth service with params " +
+                           JSON.stringify(options) + ": " + exception);
+    }
 }
 
 setInterval(checkIceConfigurationWithDelay, 5000);
