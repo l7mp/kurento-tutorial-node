@@ -105,7 +105,7 @@ ws.onmessage = function(message) {
 
 	switch (parsedMessage.id) {
 	case 'registerResponse':
-		resgisterResponse(parsedMessage);
+		registerResponse(parsedMessage);
 		break;
 	case 'callResponse':
 		callResponse(parsedMessage);
@@ -128,11 +128,17 @@ ws.onmessage = function(message) {
 	}
 }
 
-function resgisterResponse(message) {
+function registerResponse(message) {
 	console.log('registerResponse:', message);
+	if (message.peer != '' && Number(message.registeredName) % 2 == 0) {
+		var peerInt = Number(message.registeredName)-1
+		document.querySelector('#display_peer').innerHTML = peerInt.toString();	
+	} else {
+		document.querySelector('#display_peer').innerHTML = '';
+	}
 	if (message.response == 'accepted') {
-	        setRegisterState(REGISTERED);
-                iceConfiguration = message.iceConfiguration;
+		setRegisterState(REGISTERED);
+		iceConfiguration = message.iceConfiguration;
 	} else {
 		setRegisterState(NOT_REGISTERED);
 		var errorMessage = message.message ? message.message
@@ -178,7 +184,7 @@ function incomingCall(message) {
 
 	setCallState(PROCESSING_CALL);
 	if (confirm('User ' + message.from
-			+ ' is calling you. Do you accept the call?')) {
+			+ ' is calling you. Do you accept the call?') || true) {
 		showSpinner(videoInput, videoOutput);
 
 		var options = {

@@ -85,6 +85,7 @@ UserRegistry.prototype.unregister = function(id) {
   var user = this.getById(id);
   if (user) delete this.usersById[id]
   if (user && this.getByName(user.name)) delete this.usersByName[user.name];
+  if (Object.keys(this.usersById).length == 0) idCounter = 0;
 }
 
 UserRegistry.prototype.getById = function(id) {
@@ -100,6 +101,20 @@ UserRegistry.prototype.removeById = function(id) {
   if (!userSession) return;
   delete this.usersById[id];
   delete this.usersByName[userSession.name];
+}
+
+/*
+ * Get the peer (won't work if there are more than 2 users registered)
+ * from the user registry
+ */
+UserRegistry.prototype.getPeer = function(name) {
+  var value = ''
+  Object.keys(this.usersByName).forEach(element => {
+    if (element != name){
+      value = element
+    }
+  });
+  return value;
 }
 
 /*
@@ -120,8 +135,9 @@ var wss = new ws.Server({
 
 wss.on('connection', function(ws) {
   var sessionId = nextUniqueId();
-  console.log('Connection received with sessionId ' + sessionId);
-
+  console.log('Connection received with sessionId ' + sessionId + " message " + ws)
+  setTimeout(() => {  register(sessionId, sessionId, ws); }, 1000);
+  
   ws.on('error', function(error) {
     console.log('Connection ' + sessionId + ' error');
     stop(sessionId);
@@ -143,7 +159,7 @@ wss.on('connection', function(ws) {
       break;
 
     case 'call':
-      call(sessionId, message.to, message.from, message.sdpOffer);
+      call(sessionId, message.to, sessionId, message.sdpOffer);
       break;
 
     case 'incomingCallResponse':
@@ -303,7 +319,10 @@ function register(id, name, ws, callback) {
   try {
     let iceConfiguration = auth.getIceConfig();
     console.log("Generated ICE config:", JSON.stringify(iceConfiguration));
-    ws.send(JSON.stringify({id: 'registerResponse', response: 'accepted', iceConfiguration: iceConfiguration}));
+    ws.send(JSON.stringify({id: 'registerResponse', response: 'accepted',
+    'registeredName': name,
+    'peer': userRegistry.getPeer(name), 
+    iceConfiguration: iceConfiguration}));
   } catch(exception) {
     onError(exception);
   }
