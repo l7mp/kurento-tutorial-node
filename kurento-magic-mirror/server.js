@@ -32,7 +32,7 @@ var iceConfiguration;
 var stnr_auth_addr = "stunner-auth.stunner-system.svc.cluster.local";
 var stnr_auth_port = "8088";
 if ("STUNNER_AUTH_ADDR" in process.env) {
-  stnr_auth_url = process.env.STUNNER_AUTH_ADDR;
+  stnr_auth_addr = process.env.STUNNER_AUTH_ADDR;
 }
 if ("STUNNER_AUTH_PORT" in process.env) {
   stnr_auth_port = process.env.STUNNER_AUTH_PORT;
